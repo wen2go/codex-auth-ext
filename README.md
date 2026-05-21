@@ -1,4 +1,4 @@
-# Codex Auth [![latest release](https://img.shields.io/github/v/release/Loongphy/codex-auth?sort=semver&label=latest)](https://github.com/Loongphy/codex-auth/releases/latest) [![latest pre-release](https://img.shields.io/github/v/release/Loongphy/codex-auth?include_prereleases&sort=semver&filter=*-*&label=pre-release)](https://github.com/Loongphy/codex-auth/releases)
+# Codex Auth Ext
 
 ![command list](https://github.com/user-attachments/assets/6c13a2d6-f9da-47ea-8ec8-0394fc072d40)
 
@@ -41,13 +41,13 @@ After that, you can use `codex login`, `codex login --device-auth`, `codex-auth 
 Install with npm:
 
 ```shell
-npm install -g @loongphy/codex-auth
+npm install -g @wen2go/codex-auth-ext
 ```
 
   You can also run it without a global install:
 
 ```shell
-npx @loongphy/codex-auth list
+npx @wen2go/codex-auth-ext list
 ```
 
   npm packages currently support Linux x64, Linux arm64, macOS x64, macOS arm64, Windows x64, and Windows arm64.
@@ -59,7 +59,7 @@ npx @loongphy/codex-auth list
 Remove the npm package:
 
 ```shell
-npm uninstall -g @loongphy/codex-auth
+npm uninstall -g @wen2go/codex-auth-ext
 ```
 
 ## Commands

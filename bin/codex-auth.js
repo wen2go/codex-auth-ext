@@ -19,7 +19,7 @@ function ensureSupportedNodeVersion() {
   }
 
   console.error(
-    `Node.js ${requiredNodeMajor}+ is required to run @loongphy/codex-auth. Current version: ${process.version}.`
+    `Node.js ${requiredNodeMajor}+ is required to run @wen2go/codex-auth-ext. Current version: ${process.version}.`
   );
   process.exit(1);
 }
@@ -27,12 +27,12 @@ function ensureSupportedNodeVersion() {
 ensureSupportedNodeVersion();
 
 const packageMap = {
-  "linux:x64": "@loongphy/codex-auth-linux-x64",
-  "linux:arm64": "@loongphy/codex-auth-linux-arm64",
-  "darwin:x64": "@loongphy/codex-auth-darwin-x64",
-  "darwin:arm64": "@loongphy/codex-auth-darwin-arm64",
-  "win32:x64": "@loongphy/codex-auth-win32-x64",
-  "win32:arm64": "@loongphy/codex-auth-win32-arm64"
+  "linux:x64": "@wen2go/codex-auth-ext-linux-x64",
+  "linux:arm64": "@wen2go/codex-auth-ext-linux-arm64",
+  "darwin:x64": "@wen2go/codex-auth-ext-darwin-x64",
+  "darwin:arm64": "@wen2go/codex-auth-ext-darwin-arm64",
+  "win32:x64": "@wen2go/codex-auth-ext-win32-x64",
+  "win32:arm64": "@wen2go/codex-auth-ext-win32-arm64"
 };
 
 function readRootPackage() {
@@ -81,7 +81,7 @@ function resolveBinary() {
     return binaryPath;
   } catch (error) {
     console.error(
-      `Missing platform package ${packageName}. Reinstall @loongphy/codex-auth on ${process.platform}/${process.arch}.`
+      `Missing platform package ${packageName}. Reinstall @wen2go/codex-auth-ext on ${process.platform}/${process.arch}.`
     );
     if (error && error.message) {
       console.error(error.message);

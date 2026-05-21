@@ -52,14 +52,14 @@ This document describes the repository's CI, preview package publishing, and tag
 ## npm Package Layout
 
 - npm distribution uses one root package plus six platform packages.
-- Root package: `@loongphy/codex-auth`
+- Root package: `@wen2go/codex-auth-ext`
 - Platform packages:
-  - `@loongphy/codex-auth-linux-x64`
-  - `@loongphy/codex-auth-linux-arm64`
-  - `@loongphy/codex-auth-darwin-x64`
-  - `@loongphy/codex-auth-darwin-arm64`
-  - `@loongphy/codex-auth-win32-x64`
-  - `@loongphy/codex-auth-win32-arm64`
+  - `@wen2go/codex-auth-ext-linux-x64`
+  - `@wen2go/codex-auth-ext-linux-arm64`
+  - `@wen2go/codex-auth-ext-darwin-x64`
+  - `@wen2go/codex-auth-ext-darwin-arm64`
+  - `@wen2go/codex-auth-ext-win32-x64`
+  - `@wen2go/codex-auth-ext-win32-arm64`
 - The root package exposes the `codex-auth` command and depends on the platform packages through `optionalDependencies`.
 - Each platform package declares `os` and `cpu`, so npm installs only the matching binary package for the current host platform.
 - GitHub Release assets and npm packages currently target Linux x64, Linux ARM64, macOS x64, macOS ARM64, Windows x64, and Windows ARM64.
@@ -102,7 +102,7 @@ This document describes the repository's CI, preview package publishing, and tag
 - npm publishing uses Trusted Publishing from GitHub Actions, so the publish job must run on a GitHub-hosted runner with `id-token: write`.
 - `.github/workflows/release.yml` uses `actions/setup-node@v6` with Node `24` for the npm packaging and publish steps so the bundled npm CLI supports Trusted Publishing.
 - The `setup-node` steps in `.github/workflows/release.yml` explicitly set `package-manager-cache: false` to avoid future automatic npm cache behavior changes in the release pipeline.
-- npm provenance validation requires the package `repository.url` metadata to match the GitHub repository URL exactly: `https://github.com/Loongphy/codex-auth`
+- npm provenance validation requires the package `repository.url` metadata to match the GitHub repository URL exactly: `https://github.com/wen2go/codex-auth-ext`
 - `scripts/npm/stage-packages.mjs` stages the root package plus all platform packages from downloaded release artifacts.
 - The npm publish job packs the staged root package and Linux x64 package, installs both into a smoke project, and runs `codex-auth --version` before publishing.
 - Stable tags such as `v1.2.3` publish to npm dist-tag `latest`.
