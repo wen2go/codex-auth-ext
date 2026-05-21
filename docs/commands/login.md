@@ -5,6 +5,8 @@
 ```shell
 codex-auth login
 codex-auth login --device-auth
+codex-auth login --alias <alias>
+codex-auth login --device-auth --alias <alias>
 ```
 
 ## Behavior
@@ -18,5 +20,5 @@ codex-auth login --device-auth
 ## Notes
 
 - `codex` must be available on `PATH`.
-- Login-created accounts do not get an alias. Use `import <file> --alias <alias>` when an alias is needed.
+- `--alias` stores an alias for the added account in `registry.json`.
 - Invalid or incomplete auth files are rejected with the same auth validation rules used by `import`.

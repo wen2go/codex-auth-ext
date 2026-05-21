@@ -5,6 +5,7 @@
 ```shell
 codex-auth alias set <query> <alias>
 codex-auth alias clear <query>
+codex-auth set-alias <query> <alias>
 ```
 
 ## Selector Rules
@@ -23,6 +24,7 @@ If one account matches, the command updates that account immediately. If multipl
 ## Set Alias
 
 `codex-auth alias set <query> <alias>` stores an alias in `registry.json` for the matched account.
+`codex-auth set-alias <query> <alias>` is a shortcut for `codex-auth alias set <query> <alias>`.
 
 - Empty aliases are rejected.
 - All-digit aliases are rejected because numeric selectors already refer to displayed row numbers.

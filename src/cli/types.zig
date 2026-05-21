@@ -11,6 +11,7 @@ pub const ListOptions = struct {
 };
 pub const LoginOptions = struct {
     device_auth: bool = false,
+    alias: ?[]u8 = null,
 };
 pub const ImportSource = enum { standard, cpa };
 pub const ImportOptions = struct {

@@ -309,6 +309,34 @@ test "Scenario: Given login with device auth flag when parsing then device auth 
     }
 }
 
+test "Scenario: Given login with alias when parsing then alias is preserved" {
+    const gpa = std.testing.allocator;
+    const args = [_][:0]const u8{ "codex-auth", "login", "--device-auth", "--alias", "work" };
+    var result = try cli.commands.parseArgs(gpa, &args);
+    defer cli.commands.freeParseResult(gpa, &result);
+
+    switch (result) {
+        .command => |cmd| switch (cmd) {
+            .login => |opts| {
+                try std.testing.expect(opts.device_auth);
+                try std.testing.expect(opts.alias != null);
+                try std.testing.expectEqualStrings("work", opts.alias.?);
+            },
+            else => return error.TestExpectedEqual,
+        },
+        else => return error.TestExpectedEqual,
+    }
+}
+
+test "Scenario: Given login with duplicate alias flag when parsing then usage error is returned" {
+    const gpa = std.testing.allocator;
+    const args = [_][:0]const u8{ "codex-auth", "login", "--alias", "work", "--alias", "personal" };
+    var result = try cli.commands.parseArgs(gpa, &args);
+    defer cli.commands.freeParseResult(gpa, &result);
+
+    try expectUsageError(result, .login, "duplicate `--alias`");
+}
+
 test "Scenario: Given login with duplicate device auth flag when parsing then usage error is returned" {
     const gpa = std.testing.allocator;
     const args = [_][:0]const u8{ "codex-auth", "login", "--device-auth", "--device-auth" };
@@ -316,6 +344,27 @@ test "Scenario: Given login with duplicate device auth flag when parsing then us
     defer cli.commands.freeParseResult(gpa, &result);
 
     try expectUsageError(result, .login, "duplicate `--device-auth`");
+}
+
+test "Scenario: Given set-alias command when parsing then selector and alias are preserved" {
+    const gpa = std.testing.allocator;
+    const args = [_][:0]const u8{ "codex-auth", "set-alias", "john@example.com", "work" };
+    var result = try cli.commands.parseArgs(gpa, &args);
+    defer cli.commands.freeParseResult(gpa, &result);
+
+    switch (result) {
+        .command => |cmd| switch (cmd) {
+            .alias => |opts| switch (opts) {
+                .set => |set_opts| {
+                    try std.testing.expectEqualStrings("john@example.com", set_opts.selector);
+                    try std.testing.expectEqualStrings("work", set_opts.alias);
+                },
+                else => return error.TestExpectedEqual,
+            },
+            else => return error.TestExpectedEqual,
+        },
+        else => return error.TestExpectedEqual,
+    }
 }
 
 test "Scenario: Given command help selector when parsing then command-specific help is preserved" {
@@ -337,8 +386,10 @@ test "Scenario: Given help when rendering then login and command help notes are 
     const help = aw.written();
     try std.testing.expect(std.mem.indexOf(u8, help, "Commands:") != null);
     try std.testing.expect(std.mem.indexOf(u8, help, "list [--live] [--active] [--api|--skip-api]") != null);
+    try std.testing.expect(std.mem.indexOf(u8, help, "login [--device-auth] [--alias <alias>]") != null);
     try std.testing.expect(std.mem.indexOf(u8, help, "switch [--live] [--api|--skip-api]") != null);
     try std.testing.expect(std.mem.indexOf(u8, help, "alias set <alias|email|display-number|query> <alias>") != null);
+    try std.testing.expect(std.mem.indexOf(u8, help, "set-alias <alias|email|display-number|query> <alias>") != null);
     try std.testing.expect(std.mem.indexOf(u8, help, "config live --interval <seconds>") != null);
     try std.testing.expect(std.mem.indexOf(u8, help, "auto enable") == null);
 }
@@ -684,7 +735,7 @@ test "Scenario: Given codex login client missing when rendering then detection h
     try std.testing.expect(std.mem.indexOf(u8, hint, "Ensure the Codex CLI is installed and available in your environment.") != null);
 }
 
-test "Scenario: Given login help when rendering then device auth usage is included" {
+test "Scenario: Given login help when rendering then device auth and alias usage are included" {
     const gpa = std.testing.allocator;
     var aw: std.Io.Writer.Allocating = .init(gpa);
     defer aw.deinit();
@@ -692,8 +743,9 @@ test "Scenario: Given login help when rendering then device auth usage is includ
     try cli.help.writeCommandHelp(&aw.writer, false, .login);
 
     const help = aw.written();
-    try std.testing.expect(std.mem.indexOf(u8, help, "codex-auth login --device-auth") != null);
+    try std.testing.expect(std.mem.indexOf(u8, help, "codex-auth login [--device-auth] [--alias <alias>]") != null);
     try std.testing.expect(std.mem.indexOf(u8, help, "Options:\n  --device-auth   Run `codex login --device-auth` before adding the account.") != null);
+    try std.testing.expect(std.mem.indexOf(u8, help, "--alias <alias> Set an alias for the added account.") != null);
 }
 
 test "Scenario: Given login options when building codex argv then device auth is forwarded" {

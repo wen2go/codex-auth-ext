@@ -37,7 +37,7 @@ pub fn writeHelp(
     try writeCommandSummary(out, use_color, "help <command>", "Show command-specific help");
     try writeCommandSummary(out, use_color, "--version, -V", "Show version");
     try writeCommandSummary(out, use_color, "list [--live] [--active] [--api|--skip-api]", "List available accounts");
-    try writeCommandSummary(out, use_color, "login [--device-auth]", "Login and add the current account");
+    try writeCommandSummary(out, use_color, "login [--device-auth] [--alias <alias>]", "Login and add the current account");
     try writeCommandSummary(out, use_color, "import", "Import auth files or rebuild registry");
     try writeCommandDetail(out, use_color, "import <path> [--alias <alias>]");
     try writeCommandDetail(out, use_color, "import --cpa [<path>] [--alias <alias>]");
@@ -53,6 +53,7 @@ pub fn writeHelp(
     try writeCommandSummary(out, use_color, "alias", "Set or clear account aliases");
     try writeCommandDetail(out, use_color, "alias set <alias|email|display-number|query> <alias>");
     try writeCommandDetail(out, use_color, "alias clear <alias|email|display-number|query>");
+    try writeCommandSummary(out, use_color, "set-alias <alias|email|display-number|query> <alias>", "Set an account alias");
     try writeCommandSummary(out, use_color, "clean", "Delete backup and stale files under accounts/");
     try writeCommandDetail(out, use_color, "clean background");
     try writeCommandSummary(out, use_color, "config", "Manage configuration");
@@ -189,8 +190,7 @@ fn writeUsageLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         },
         .list => try out.writeAll("  codex-auth list [--live] [--active] [--api|--skip-api]\n"),
         .login => {
-            try out.writeAll("  codex-auth login\n");
-            try out.writeAll("  codex-auth login --device-auth\n");
+            try out.writeAll("  codex-auth login [--device-auth] [--alias <alias>]\n");
         },
         .import_auth => {
             try out.writeAll("  codex-auth import <path> [--alias <alias>]\n");
@@ -255,6 +255,7 @@ fn writeOptionLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         },
         .login => {
             try out.writeAll("  --device-auth   Run `codex login --device-auth` before adding the account.\n");
+            try out.writeAll("  --alias <alias> Set an alias for the added account.\n");
         },
         .import_auth => {
             try out.writeAll("  <path>           Import one auth file or every supported auth file in a directory.\n");
@@ -318,6 +319,8 @@ fn writeExampleLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         .login => {
             try out.writeAll("  codex-auth login\n");
             try out.writeAll("  codex-auth login --device-auth\n");
+            try out.writeAll("  codex-auth login --alias personal\n");
+            try out.writeAll("  codex-auth login --device-auth --alias work\n");
         },
         .import_auth => {
             try out.writeAll("  codex-auth import /path/to/auth.json --alias personal\n");
@@ -351,6 +354,7 @@ fn writeExampleLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         },
         .alias => {
             try out.writeAll("  codex-auth alias set 02 work\n");
+            try out.writeAll("  codex-auth set-alias 02 work\n");
             try out.writeAll("  codex-auth alias set john@example.com personal\n");
             try out.writeAll("  codex-auth alias set old-name new-name\n");
             try out.writeAll("  codex-auth alias clear work\n");

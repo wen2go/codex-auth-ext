@@ -709,7 +709,7 @@ fn appendCustomAccount(
     });
 }
 
-test "Scenario: Given device auth login when running login then it forwards the flag and imports the current account" {
+test "Scenario: Given device auth login with alias when running login then it forwards login flags and imports the current account" {
     const gpa = std.testing.allocator;
     const project_root = try projectRootAlloc(gpa);
     defer gpa.free(project_root);
@@ -739,7 +739,7 @@ test "Scenario: Given device auth login when running login then it forwards the 
         project_root,
         home_root,
         path_override,
-        &[_][]const u8{ "login", "--device-auth" },
+        &[_][]const u8{ "login", "--device-auth", "--alias", "work" },
     );
     defer gpa.free(result.stdout);
     defer gpa.free(result.stderr);
@@ -761,6 +761,7 @@ test "Scenario: Given device auth login when running login then it forwards the 
     try std.testing.expectEqual(@as(usize, 1), loaded.accounts.items.len);
     try std.testing.expect(loaded.active_account_key != null);
     try std.testing.expect(std.mem.eql(u8, loaded.accounts.items[0].email, expected_email));
+    try std.testing.expectEqualStrings("work", loaded.accounts.items[0].alias);
 
     const expected_account_key = try fixtures.accountKeyForEmailAlloc(gpa, expected_email);
     defer gpa.free(expected_account_key);
@@ -1751,6 +1752,47 @@ test "Scenario: Given alias set with a direct local match when running alias the
     try std.testing.expectEqualStrings("work", loaded.accounts.items[idx].alias);
 }
 
+test "Scenario: Given set-alias with a direct local match when running command then registry alias is updated" {
+    const gpa = std.testing.allocator;
+    const project_root = try projectRootAlloc(gpa);
+    defer gpa.free(project_root);
+    try buildCliBinary(gpa, project_root);
+
+    var tmp = fs.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const home_root = try tmp.dir.realpathAlloc(gpa, ".");
+    defer gpa.free(home_root);
+
+    try seedRegistryWithAccounts(gpa, home_root, "active@example.com", &[_]SeedAccount{
+        .{ .email = "active@example.com", .alias = "active" },
+        .{ .email = "backup@example.com", .alias = "backup" },
+    });
+
+    const codex_home = try codexHomeAlloc(gpa, home_root);
+    defer gpa.free(codex_home);
+
+    const result = try runCliWithIsolatedHome(
+        gpa,
+        project_root,
+        home_root,
+        &[_][]const u8{ "set-alias", "backup@", "work" },
+    );
+    defer gpa.free(result.stdout);
+    defer gpa.free(result.stderr);
+
+    try expectSuccess(result);
+    try std.testing.expectEqualStrings("Updated alias for backup@example.com: backup -> work\n", result.stdout);
+    try std.testing.expectEqualStrings("", result.stderr);
+
+    var loaded = try registry.loadRegistry(gpa, codex_home);
+    defer loaded.deinit(gpa);
+    const backup_key = try fixtures.accountKeyForEmailAlloc(gpa, "backup@example.com");
+    defer gpa.free(backup_key);
+    const idx = registry.findAccountIndexByAccountKey(&loaded, backup_key) orelse return error.TestExpectedEqual;
+    try std.testing.expectEqualStrings("work", loaded.accounts.items[idx].alias);
+}
+
 test "Scenario: Given alias clear with display number when running alias then registry alias is removed" {
     const gpa = std.testing.allocator;
     const project_root = try projectRootAlloc(gpa);
@@ -2015,8 +2057,8 @@ test "Scenario: Given list with skip-api when running list then it does not requ
 
     try expectSuccess(result);
     try std.testing.expect(std.mem.indexOf(u8, result.stdout, "ACCOUNT") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "alpha@example.com") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "beta@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "alpha(alpha@example.com)") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "beta(beta@example.com)") != null);
     try std.testing.expectEqualStrings("", result.stderr);
 }
 

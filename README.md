@@ -4,6 +4,17 @@
 
 `codex-auth` is a command-line tool for switching Codex accounts.
 
+## Fork Notice
+
+This repository is a second-development fork of [Loongphy/codex-auth](https://github.com/Loongphy/codex-auth).
+
+This fork adds:
+
+- Alias-first account labels in `codex-auth list`, so accounts with an alias render as `alias(email)`.
+- `codex-auth login --alias <alias>` for assigning an alias while adding a new account.
+- `codex-auth set-alias <selector> <alias>` as a shortcut for updating an existing account alias.
+- A local npm packaging helper, `npm run pack:local`, for building an installable package from the current platform binary.
+
 > [!IMPORTANT]
 > For **Codex CLI** and **Codex App** users, switch accounts, then restart the client for the new account to take effect.
 >
@@ -60,12 +71,13 @@ Detailed command documentation lives in [docs/commands/README.md](./docs/command
 | Command | Description |
 |---------|-------------|
 | [`codex-auth list [--live] [--active] [--api\|--skip-api]`](./docs/commands/list.md) | List stored accounts and usage state |
-| [`codex-auth login [--device-auth]`](./docs/commands/login.md) | Run `codex login`, then add the current account |
+| [`codex-auth login [--device-auth] [--alias <alias>]`](./docs/commands/login.md) | Run `codex login`, then add the current account |
 | [`codex-auth switch [--live] [--api\|--skip-api]`](./docs/commands/switch.md) | Switch the active account interactively |
 | [`codex-auth switch <query>`](./docs/commands/switch.md) | Switch directly by row number or account selector |
 | [`codex-auth remove [--live] [--api\|--skip-api]`](./docs/commands/remove.md) | Remove accounts interactively |
 | [`codex-auth remove <query> [<query>...]`](./docs/commands/remove.md) | Remove accounts by selector |
 | [`codex-auth remove --all`](./docs/commands/remove.md) | Remove all stored accounts |
+| [`codex-auth set-alias <query> <alias>`](./docs/commands/alias.md) | Set or update an account alias |
 
 ### Import and Maintenance
 
@@ -92,6 +104,8 @@ codex-auth list --active
 codex-auth switch
 codex-auth switch 02
 codex-auth remove work
+codex-auth login --alias personal
+codex-auth set-alias 02 work
 codex-auth import /path/to/auth.json --alias personal
 codex-auth list --skip-api
 ```

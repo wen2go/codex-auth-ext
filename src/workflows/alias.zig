@@ -62,13 +62,13 @@ fn resolveAliasTargetIndex(
     return registry.findAccountIndexByAccountKey(reg, account_key) orelse error.AccountNotFound;
 }
 
-fn replaceAlias(allocator: std.mem.Allocator, rec: *registry.AccountRecord, alias_value: []const u8) !void {
+pub fn replaceAlias(allocator: std.mem.Allocator, rec: *registry.AccountRecord, alias_value: []const u8) !void {
     const owned_alias = try allocator.dupe(u8, alias_value);
     allocator.free(rec.alias);
     rec.alias = owned_alias;
 }
 
-fn validateAlias(reg: *registry.Registry, alias_value: []const u8, selected_idx: usize) !void {
+pub fn validateAlias(reg: *registry.Registry, alias_value: []const u8, selected_idx: ?usize) !void {
     if (alias_value.len == 0) {
         try cli.output.printInvalidAliasError("alias cannot be empty; use `codex-auth alias clear <selector>` to remove one.");
         return error.InvalidAlias;
@@ -84,7 +84,7 @@ fn validateAlias(reg: *registry.Registry, alias_value: []const u8, selected_idx:
         }
     }
     for (reg.accounts.items, 0..) |rec, idx| {
-        if (idx == selected_idx) continue;
+        if (selected_idx != null and idx == selected_idx.?) continue;
         if (rec.alias.len != 0 and std.ascii.eqlIgnoreCase(rec.alias, alias_value)) {
             try cli.output.printDuplicateAliasError(alias_value, rec.email);
             return error.DuplicateAlias;

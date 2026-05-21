@@ -45,6 +45,7 @@ pub fn parseArgs(allocator: std.mem.Allocator, args: []const [:0]const u8) !type
     if (std.mem.eql(u8, cmd, "switch")) return switch_account.parse(allocator, args[2..]);
     if (std.mem.eql(u8, cmd, "remove")) return remove.parse(allocator, args[2..]);
     if (std.mem.eql(u8, cmd, "alias")) return alias.parse(allocator, args[2..]);
+    if (std.mem.eql(u8, cmd, "set-alias")) return parseSetAliasArgs(allocator, args[2..]);
     if (std.mem.eql(u8, cmd, "clean")) return clean.parse(allocator, args[2..]);
     if (std.mem.eql(u8, cmd, "config")) return config.parse(allocator, args[2..]);
 
@@ -61,6 +62,9 @@ pub fn freeParseResult(allocator: std.mem.Allocator, result: *types.ParseResult)
 
 fn freeCommand(allocator: std.mem.Allocator, cmd: *types.Command) void {
     switch (cmd.*) {
+        .login => |opts| {
+            if (opts.alias) |value| allocator.free(value);
+        },
         .import_auth => |opts| common.freeImportOptions(allocator, opts.auth_path, opts.alias),
         .export_auth => |opts| {
             if (opts.dest_path) |path| allocator.free(path);
@@ -105,7 +109,24 @@ fn helpTopicForName(name: []const u8) ?types.HelpTopic {
     if (std.mem.eql(u8, name, "switch")) return .switch_account;
     if (std.mem.eql(u8, name, "remove")) return .remove_account;
     if (std.mem.eql(u8, name, "alias")) return .alias;
+    if (std.mem.eql(u8, name, "set-alias")) return .alias;
     if (std.mem.eql(u8, name, "clean")) return .clean;
     if (std.mem.eql(u8, name, "config")) return .config;
     return null;
+}
+
+fn parseSetAliasArgs(allocator: std.mem.Allocator, args: []const [:0]const u8) !types.ParseResult {
+    if (args.len == 1 and common.isHelpFlag(std.mem.sliceTo(args[0], 0))) {
+        return .{ .command = .{ .help = .alias } };
+    }
+    if (args.len < 2) return common.usageErrorResult(allocator, .alias, "`set-alias` requires a selector and alias.", .{});
+    if (args.len > 2) return common.usageErrorResult(allocator, .alias, "unexpected extra argument `{s}` for `set-alias`.", .{std.mem.sliceTo(args[2], 0)});
+
+    const selector = try allocator.dupe(u8, std.mem.sliceTo(args[0], 0));
+    errdefer allocator.free(selector);
+    const alias_value = try allocator.dupe(u8, std.mem.sliceTo(args[1], 0));
+    return .{ .command = .{ .alias = .{ .set = .{
+        .selector = selector,
+        .alias = alias_value,
+    } } } };
 }
