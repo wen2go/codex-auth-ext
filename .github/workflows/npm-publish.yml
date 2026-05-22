@@ -1,0 +1,139 @@
+name: Auto Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish-npm:
+    name: Build and publish npm packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Zig
+        uses: Loongphy/setup-zig@node24-lts-runtime
+        with:
+          version: 0.16.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Read package metadata
+        id: package
+        shell: bash
+        run: |
+          version="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          if [[ "${version}" == *-* ]]; then
+            echo "dist_tag=next" >> "$GITHUB_OUTPUT"
+          else
+            echo "dist_tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check whether version is already published
+        id: published
+        shell: bash
+        run: |
+          if npm view "@wen2go/codex-auth-ext@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "@wen2go/codex-auth-ext@${{ steps.package.outputs.version }} is already published; skipping."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check versions
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        run: node scripts/npm/check-versions.mjs v${{ steps.package.outputs.version }}
+
+      - name: Check release metadata
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        run: node scripts/npm/check-release-metadata.mjs
+
+      - name: Zig test
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        run: zig build test
+
+      - name: Build platform binaries
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          targets=(
+            "linux-x64:x86_64-linux-gnu:codex-auth"
+            "linux-arm64:aarch64-linux-gnu:codex-auth"
+            "darwin-x64:x86_64-macos-none:codex-auth"
+            "darwin-arm64:aarch64-macos-none:codex-auth"
+            "win32-x64:x86_64-windows-gnu:codex-auth.exe"
+            "win32-arm64:aarch64-windows-gnu:codex-auth.exe"
+          )
+
+          for entry in "${targets[@]}"; do
+            IFS=: read -r id zig_target binary_name <<< "${entry}"
+            prefix="artifacts/${id}"
+            zig build -Dtarget="${zig_target}" -Doptimize=ReleaseSafe --prefix "${prefix}"
+            mkdir -p "${prefix}/binary"
+            cp "${prefix}/bin/${binary_name}" "${prefix}/binary/${binary_name}"
+          done
+
+      - name: Stage npm packages
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        run: node scripts/npm/stage-packages.mjs --artifacts-dir artifacts --output-dir dist/npm
+
+      - name: Create pack directory
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        run: mkdir -p dist/packed
+
+      - name: Pack root package
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        run: npm pack dist/npm/root --pack-destination dist/packed
+
+      - name: Pack host platform package
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        run: npm pack dist/npm/codex-auth-linux-x64 --pack-destination dist/packed
+
+      - name: Smoke install packed tarballs
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        shell: bash
+        run: |
+          mkdir -p smoke
+          cd smoke
+          npm init -y
+          npm install \
+            "../dist/packed/wen2go-codex-auth-ext-linux-x64-${{ steps.package.outputs.version }}.tgz" \
+            "../dist/packed/wen2go-codex-auth-ext-${{ steps.package.outputs.version }}.tgz"
+          ./node_modules/.bin/codex-auth --version
+
+      - name: Publish platform packages
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          for dir in \
+            codex-auth-linux-x64 \
+            codex-auth-linux-arm64 \
+            codex-auth-darwin-x64 \
+            codex-auth-darwin-arm64 \
+            codex-auth-win32-x64 \
+            codex-auth-win32-arm64
+          do
+            npm publish "dist/npm/${dir}" --access public --tag "${{ steps.package.outputs.dist_tag }}"
+          done
+
+      - name: Publish root package
+        if: ${{ steps.published.outputs.exists != 'true' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish dist/npm/root --access public --tag ${{ steps.package.outputs.dist_tag }}
