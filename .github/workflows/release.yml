@@ -411,7 +411,7 @@ jobs:
           mkdir -p smoke
           cd smoke
           npm init -y
-          npm install "../dist/packed/loongphy-codex-auth-linux-x64-${PACKAGE_VERSION}.tgz" "../dist/packed/loongphy-codex-auth-${PACKAGE_VERSION}.tgz"
+          npm install "../dist/packed/wen2go-codex-auth-ext-linux-x64-${PACKAGE_VERSION}.tgz" "../dist/packed/wen2go-codex-auth-ext-${PACKAGE_VERSION}.tgz"
           ./node_modules/.bin/codex-auth --version
 
       - name: Set npm dist-tag
