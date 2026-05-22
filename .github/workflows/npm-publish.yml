@@ -118,6 +118,8 @@ jobs:
       - name: Publish platform packages
         if: ${{ steps.published.outputs.exists != 'true' }}
         shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
           for dir in \
@@ -133,4 +135,6 @@ jobs:
 
       - name: Publish root package
         if: ${{ steps.published.outputs.exists != 'true' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish dist/npm/root --access public --tag ${{ steps.package.outputs.dist_tag }}
