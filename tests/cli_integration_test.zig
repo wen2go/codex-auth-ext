@@ -918,7 +918,7 @@ test "Scenario: Given first-time use on v0.2 with an existing auth.json and no a
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, email) != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "fr*****sh@example.com") != null);
 
     const codex_home = try codexHomeAlloc(gpa, home_root);
     defer gpa.free(codex_home);
@@ -1163,8 +1163,8 @@ test "Scenario: Given API key import when listing with api refresh then stale sn
 
     logRunResultIfFailed("api key list before stale snapshot", first_list);
     try expectSuccess(first_list);
-    try std.testing.expect(std.mem.indexOf(u8, first_list.stdout, "apikey-flow@example.com") != null);
-    try std.testing.expect(std.mem.indexOf(u8, first_list.stdout, "chatgpt-flow@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, first_list.stdout, "ap*****ow@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, first_list.stdout, "ch*****ow@example.com") != null);
     try std.testing.expect(std.mem.indexOf(u8, first_list.stdout, "API_KEY") != null);
     try std.testing.expect(std.mem.indexOf(u8, first_list.stdout, "MissingAuth") == null);
     try std.testing.expectEqualStrings("", first_list.stderr);
@@ -1193,7 +1193,7 @@ test "Scenario: Given API key import when listing with api refresh then stale sn
 
     logRunResultIfFailed("api key list after stale snapshot", second_list);
     try expectSuccess(second_list);
-    try std.testing.expect(std.mem.indexOf(u8, second_list.stdout, "apikey-flow@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, second_list.stdout, "ap*****ow@example.com") != null);
     try std.testing.expect(std.mem.indexOf(u8, second_list.stdout, "API_KEY") != null);
     try std.testing.expect(std.mem.indexOf(u8, second_list.stdout, "MissingAuth") == null);
     try std.testing.expectEqualStrings("", second_list.stderr);
@@ -1698,7 +1698,7 @@ test "Scenario: Given switch query with a direct local match when running switch
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expectEqualStrings("Switched to backup(backup@example.com)\n", result.stdout);
+    try std.testing.expectEqualStrings("Switched to backup(ba*****up@example.com)\n", result.stdout);
     try std.testing.expectEqualStrings("", result.stderr);
 
     const auth_after = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -1933,10 +1933,10 @@ test "Scenario: Given switch query with multiple matches when running switch the
 
     try expectSuccess(result);
     try std.testing.expect(std.mem.indexOf(u8, result.stdout, "Select account to activate:") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "alpha@example.com") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "beta@example.com") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "solo@example.com") == null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "Switched to team-b(beta@example.com)") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "al*****ha@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "be*****ta@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "so*****lo@example.com") == null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "Switched to team-b(be*****ta@example.com)") != null);
     try std.testing.expectEqualStrings("", result.stderr);
 
     const auth_after = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -2057,8 +2057,8 @@ test "Scenario: Given list with skip-api when running list then it does not requ
 
     try expectSuccess(result);
     try std.testing.expect(std.mem.indexOf(u8, result.stdout, "ACCOUNT") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "alpha(alpha@example.com)") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "beta(beta@example.com)") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "alpha(al*****ha@example.com)") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "beta(be*****ta@example.com)") != null);
     try std.testing.expectEqualStrings("", result.stderr);
 }
 
@@ -2235,7 +2235,7 @@ test "Scenario: Given switch with skip-api when running interactively then it do
 
     try expectSuccess(result);
     try std.testing.expect(std.mem.indexOf(u8, result.stdout, "Select account to activate:") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "Switched to backup(backup@example.com)") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "Switched to backup(ba*****up@example.com)") != null);
     try std.testing.expectEqualStrings("", result.stderr);
 
     const auth_after = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -2294,7 +2294,7 @@ test "Scenario: Given remove query with one match when running remove then it de
 
     try expectSuccess(result);
     try std.testing.expectEqualStrings(
-        "Removed 1 account(s): robot09@example.com\n",
+        "Removed 1 account(s): ro*****09@example.com\n",
         result.stdout,
     );
     try std.testing.expectEqualStrings("", result.stderr);
@@ -2345,7 +2345,7 @@ test "Scenario: Given remove with account key selector when running remove then 
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "robot09@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result.stdout, "ro*****09@example.com") != null);
     try std.testing.expectEqualStrings("", result.stderr);
 
     var loaded = try registry.loadRegistry(gpa, codex_home);
@@ -2387,7 +2387,7 @@ test "Scenario: Given remove with multiple selectors when running remove then it
 
     try expectSuccess(result);
     try std.testing.expectEqualStrings(
-        "Removed 2 account(s): alpha@example.com, keeper@example.com\n",
+        "Removed 2 account(s): al*****ha@example.com, ke*****er@example.com\n",
         result.stdout,
     );
     try std.testing.expectEqualStrings("", result.stderr);
@@ -2661,7 +2661,7 @@ test "Scenario: Given active account removal with a replacement when running rem
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expectEqualStrings("Removed 1 account(s): active@example.com\n", result.stdout);
+    try std.testing.expectEqualStrings("Removed 1 account(s): ac*****ve@example.com\n", result.stdout);
     try std.testing.expectEqualStrings("", result.stderr);
 
     const replaced_auth = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -2714,7 +2714,7 @@ test "Scenario: Given active account removal with missing auth json when running
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expectEqualStrings("Removed 1 account(s): active@example.com\n", result.stdout);
+    try std.testing.expectEqualStrings("Removed 1 account(s): ac*****ve@example.com\n", result.stdout);
     try std.testing.expectEqualStrings("", result.stderr);
 
     const recreated_auth = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -2774,7 +2774,7 @@ test "Scenario: Given missing auth json and no valid active key when running rem
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expectEqualStrings("Removed 1 account(s): active@example.com\n", result.stdout);
+    try std.testing.expectEqualStrings("Removed 1 account(s): ac*****ve@example.com\n", result.stdout);
     try std.testing.expectEqualStrings("", result.stderr);
 
     const recreated_auth = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -2837,7 +2837,7 @@ test "Scenario: Given auth json already points at another registry account when 
     defer gpa.free(remove_result.stderr);
 
     try expectSuccess(remove_result);
-    try std.testing.expectEqualStrings("Removed 1 account(s): beta@example.com\n", remove_result.stdout);
+    try std.testing.expectEqualStrings("Removed 1 account(s): be*****ta@example.com\n", remove_result.stdout);
     try std.testing.expectEqualStrings("", remove_result.stderr);
 
     const auth_after_remove = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -2856,8 +2856,8 @@ test "Scenario: Given auth json already points at another registry account when 
     defer gpa.free(list_result.stderr);
 
     try expectSuccess(list_result);
-    try std.testing.expect(std.mem.indexOf(u8, list_result.stdout, "alpha@example.com") != null);
-    try std.testing.expect(std.mem.indexOf(u8, list_result.stdout, "beta@example.com") == null);
+    try std.testing.expect(std.mem.indexOf(u8, list_result.stdout, "al*****ha@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, list_result.stdout, "be*****ta@example.com") == null);
 
     var loaded_after_list = try registry.loadRegistry(gpa, codex_home);
     defer loaded_after_list.deinit(gpa);
@@ -2996,8 +2996,8 @@ test "Scenario: Given remove query with multiple matches in non-tty mode when ru
     try std.testing.expectEqualStrings("", result.stdout);
     try std.testing.expectEqualStrings(
         "Matched multiple accounts:\n" ++
-            "- team-a(alpha@example.com)\n" ++
-            "- team-b(beta@example.com)\n" ++
+            "- team-a(al*****ha@example.com)\n" ++
+            "- team-b(be*****ta@example.com)\n" ++
             "error: multiple accounts match the query in non-interactive mode.\n" ++
             "hint: Refine the query to match one account, or run the command in a TTY.\n",
         result.stderr,
@@ -3036,8 +3036,8 @@ test "Scenario: Given remove fuzzy selector with multiple matches when running r
     try std.testing.expectEqualStrings("", result.stdout);
     try std.testing.expectEqualStrings(
         "Matched multiple accounts:\n" ++
-            "- ops-east(east@example.com)\n" ++
-            "- ops-west(west@example.com)\n" ++
+            "- ops-east(ea*****st@example.com)\n" ++
+            "- ops-west(we*****st@example.com)\n" ++
             "error: multiple accounts match the query in non-interactive mode.\n" ++
             "hint: Refine the query to match one account, or run the command in a TTY.\n",
         result.stderr,
@@ -3079,8 +3079,8 @@ test "Scenario: Given remove query with duplicate-email accounts when running re
     try expectFailure(result);
     try std.testing.expectEqualStrings(
         "Matched multiple accounts:\n" ++
-            "- alice@example.com / work\n" ++
-            "- alice@example.com / personal\n" ++
+            "- al*****ce@example.com / work\n" ++
+            "- al*****ce@example.com / personal\n" ++
             "error: multiple accounts match the query in non-interactive mode.\n" ++
             "hint: Refine the query to match one account, or run the command in a TTY.\n",
         result.stderr,
@@ -3123,7 +3123,7 @@ test "Scenario: Given remove query deletes the final active account when running
 
     try expectSuccess(result);
     try std.testing.expectEqualStrings(
-        "Removed 1 account(s): solo@example.com\n",
+        "Removed 1 account(s): so*****lo@example.com\n",
         result.stdout,
     );
     try std.testing.expectEqualStrings("", result.stderr);
@@ -3388,7 +3388,7 @@ test "Scenario: Given unsynced active auth when removing the active registry acc
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expectEqualStrings("Removed 1 account(s): active@example.com\n", result.stdout);
+    try std.testing.expectEqualStrings("Removed 1 account(s): ac*****ve@example.com\n", result.stdout);
     try std.testing.expectEqualStrings("warning: auth.json missing email; skipping sync\n", result.stderr);
 
     const auth_after = try fixtures.readFileAlloc(gpa, active_auth_path);
@@ -3448,7 +3448,7 @@ test "Scenario: Given parseable auth without email for the active account when r
     defer gpa.free(result.stderr);
 
     try expectSuccess(result);
-    try std.testing.expectEqualStrings("Removed 1 account(s): active@example.com\n", result.stdout);
+    try std.testing.expectEqualStrings("Removed 1 account(s): ac*****ve@example.com\n", result.stdout);
     try std.testing.expectEqualStrings("warning: auth.json missing email; skipping sync\n", result.stderr);
 
     const auth_after = try fixtures.readFileAlloc(gpa, active_auth_path);

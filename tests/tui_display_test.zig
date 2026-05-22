@@ -78,7 +78,7 @@ test "Scenario: Given same email with two team accounts and one plus account whe
 
     try std.testing.expect(rows.rows.len == 4);
     try std.testing.expect(rows.rows[0].account_index == null);
-    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "user@example.com"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "us*****er@example.com"));
     try std.testing.expect(std.mem.eql(u8, rows.rows[1].account_cell, "Business #1"));
     try std.testing.expect(rows.rows[1].is_active);
     try std.testing.expect(std.mem.eql(u8, rows.rows[2].account_cell, "Business #2"));
@@ -114,7 +114,7 @@ test "Scenario: Given grouped accounts with a prolite record when building displ
     defer rows.deinit(gpa);
 
     try std.testing.expectEqual(@as(usize, 3), rows.rows.len);
-    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "user@example.com"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "us*****er@example.com"));
     try std.testing.expect(std.mem.eql(u8, rows.rows[1].account_cell, "Business"));
     try std.testing.expect(std.mem.eql(u8, rows.rows[2].account_cell, "Pro Lite"));
 }
@@ -137,7 +137,7 @@ test "Scenario: Given a grouped account with a fresher usage plan when building 
     defer rows.deinit(gpa);
 
     try std.testing.expectEqual(@as(usize, 3), rows.rows.len);
-    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "user@example.com"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "us*****er@example.com"));
     try std.testing.expect(std.mem.eql(u8, rows.rows[1].account_cell, "Business"));
     try std.testing.expect(std.mem.eql(u8, rows.rows[2].account_cell, "Free"));
 }
@@ -155,14 +155,14 @@ test "Scenario: Given same-email accounts filtered down to one row when building
     defer grouped_rows.deinit(gpa);
     try std.testing.expectEqual(@as(usize, 3), grouped_rows.rows.len);
     try std.testing.expect(grouped_rows.rows[0].account_index == null);
-    try std.testing.expect(std.mem.eql(u8, grouped_rows.rows[0].account_cell, "user@example.com"));
+    try std.testing.expect(std.mem.eql(u8, grouped_rows.rows[0].account_cell, "us*****er@example.com"));
 
     const indices = [_]usize{0};
     var singleton_rows = try display_rows.buildDisplayRows(gpa, &reg, &indices);
     defer singleton_rows.deinit(gpa);
     try std.testing.expectEqual(@as(usize, 1), singleton_rows.rows.len);
     try std.testing.expect(singleton_rows.rows[0].account_index != null);
-    try std.testing.expect(std.mem.eql(u8, singleton_rows.rows[0].account_cell, "work(Primary Workspace, user@example.com)"));
+    try std.testing.expect(std.mem.eql(u8, singleton_rows.rows[0].account_cell, "work(Primary Workspace, us*****er@example.com)"));
 }
 
 test "Scenario: Given singleton accounts with alias and account name combinations when building display rows then preferred labels render before emails" {
@@ -181,10 +181,10 @@ test "Scenario: Given singleton accounts with alias and account name combination
     defer rows.deinit(gpa);
 
     try std.testing.expectEqual(@as(usize, 4), rows.rows.len);
-    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "work(Primary Workspace, alias-name@example.com)"));
-    try std.testing.expect(std.mem.eql(u8, rows.rows[1].account_cell, "backup(alias-only@example.com)"));
-    try std.testing.expect(std.mem.eql(u8, rows.rows[2].account_cell, "fallback@example.com"));
-    try std.testing.expect(std.mem.eql(u8, rows.rows[3].account_cell, "Sandbox(name-only@example.com)"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "work(Primary Workspace, al*****me@example.com)"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[1].account_cell, "backup(al*****ly@example.com)"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[2].account_cell, "fa*****ck@example.com"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[3].account_cell, "Sandbox(na*****ly@example.com)"));
 }
 
 test "Scenario: Given mixed singleton and grouped accounts when building display rows then singleton rows include preferred labels while grouped rows keep child labels" {
@@ -202,9 +202,9 @@ test "Scenario: Given mixed singleton and grouped accounts when building display
     defer rows.deinit(gpa);
 
     try std.testing.expectEqual(@as(usize, 4), rows.rows.len);
-    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "solo(Solo Workspace, solo@example.com)"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[0].account_cell, "solo(Solo Workspace, so*****lo@example.com)"));
     try std.testing.expect(rows.rows[1].account_index == null);
-    try std.testing.expect(std.mem.eql(u8, rows.rows[1].account_cell, "user@example.com"));
+    try std.testing.expect(std.mem.eql(u8, rows.rows[1].account_cell, "us*****er@example.com"));
     try std.testing.expect(std.mem.eql(u8, rows.rows[2].account_cell, "work(Primary Workspace)"));
     try std.testing.expect(std.mem.eql(u8, rows.rows[3].account_cell, "Plus"));
 }
@@ -233,7 +233,7 @@ test "Scenario: Given grouped accounts with account names when building display 
     try std.testing.expect(std.mem.eql(u8, rows.rows[3].account_cell, "Plus"));
 }
 
-test "Scenario: Given a single API key account when building display rows then the row stays as the email" {
+test "Scenario: Given a single API key account when building display rows then the row masks the email" {
     const gpa = std.testing.allocator;
     var reg = makeRegistry();
     defer reg.deinit(gpa);
@@ -244,10 +244,10 @@ test "Scenario: Given a single API key account when building display rows then t
     defer rows.deinit(gpa);
 
     try std.testing.expectEqual(@as(usize, 1), rows.rows.len);
-    try std.testing.expectEqualStrings("user@example.com", rows.rows[0].account_cell);
+    try std.testing.expectEqualStrings("us*****er@example.com", rows.rows[0].account_cell);
 }
 
-test "Scenario: Given two API key accounts for one email when building display rows then child labels are masked fingerprints" {
+test "Scenario: Given two API key accounts for one email when building display rows then header email and child fingerprints are masked" {
     const gpa = std.testing.allocator;
     var reg = makeRegistry();
     defer reg.deinit(gpa);
@@ -259,7 +259,7 @@ test "Scenario: Given two API key accounts for one email when building display r
     defer rows.deinit(gpa);
 
     try std.testing.expectEqual(@as(usize, 3), rows.rows.len);
-    try std.testing.expectEqualStrings("user@example.com", rows.rows[0].account_cell);
+    try std.testing.expectEqualStrings("us*****er@example.com", rows.rows[0].account_cell);
     try std.testing.expectEqualStrings("sk-12345***7890", rows.rows[1].account_cell);
     try std.testing.expectEqualStrings("sk-7f3c1***42ce", rows.rows[2].account_cell);
 }

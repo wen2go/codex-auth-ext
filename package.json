@@ -1,12 +1,12 @@
 {
   "name": "@wen2go/codex-auth-ext",
-  "version": "0.3.0-alpha.7",
+  "version": "0.3.0-alpha.8",
   "type": "module",
   "description": "CLI for switching Codex accounts",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wen2go/codex-auth-ext.git"
+    "url": "https://github.com/wen2go/codex-auth-ext"
   },
   "homepage": "https://github.com/wen2go/codex-auth-ext",
   "bugs": {
@@ -21,12 +21,12 @@
     "README.md"
   ],
   "optionalDependencies": {
-    "@wen2go/codex-auth-ext-linux-x64": "0.3.0-alpha.7",
-    "@wen2go/codex-auth-ext-linux-arm64": "0.3.0-alpha.7",
-    "@wen2go/codex-auth-ext-darwin-x64": "0.3.0-alpha.7",
-    "@wen2go/codex-auth-ext-darwin-arm64": "0.3.0-alpha.7",
-    "@wen2go/codex-auth-ext-win32-x64": "0.3.0-alpha.7",
-    "@wen2go/codex-auth-ext-win32-arm64": "0.3.0-alpha.7"
+    "@wen2go/codex-auth-ext-linux-x64": "0.3.0-alpha.8",
+    "@wen2go/codex-auth-ext-linux-arm64": "0.3.0-alpha.8",
+    "@wen2go/codex-auth-ext-darwin-x64": "0.3.0-alpha.8",
+    "@wen2go/codex-auth-ext-darwin-arm64": "0.3.0-alpha.8",
+    "@wen2go/codex-auth-ext-win32-x64": "0.3.0-alpha.8",
+    "@wen2go/codex-auth-ext-win32-arm64": "0.3.0-alpha.8"
   },
   "scripts": {
     "check:versions": "node scripts/npm/check-versions.mjs",

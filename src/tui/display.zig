@@ -70,7 +70,7 @@ pub fn buildDisplayRows(
             continue;
         }
 
-        const header_cell = try allocator.dupe(u8, email);
+        const header_cell = try maskedEmailAlloc(allocator, email);
         row_list.append(allocator, .{
             .account_index = null,
             .account_cell = header_cell,
@@ -222,17 +222,32 @@ pub fn buildAccountIdentityLabelAlloc(
 ) ![]u8 {
     const alias = if (rec.alias.len != 0) rec.alias else null;
     const account_name = normalizedAccountName(rec);
+    const masked_email = try maskedEmailAlloc(allocator, rec.email);
+    defer allocator.free(masked_email);
 
     if (alias != null and account_name != null) {
-        return std.fmt.allocPrint(allocator, "{s}({s}, {s})", .{ alias.?, account_name.?, rec.email });
+        return std.fmt.allocPrint(allocator, "{s}({s}, {s})", .{ alias.?, account_name.?, masked_email });
     }
     if (alias != null) {
-        return std.fmt.allocPrint(allocator, "{s}({s})", .{ alias.?, rec.email });
+        return std.fmt.allocPrint(allocator, "{s}({s})", .{ alias.?, masked_email });
     }
     if (account_name != null) {
-        return std.fmt.allocPrint(allocator, "{s}({s})", .{ account_name.?, rec.email });
+        return std.fmt.allocPrint(allocator, "{s}({s})", .{ account_name.?, masked_email });
     }
-    return allocator.dupe(u8, rec.email);
+    return allocator.dupe(u8, masked_email);
+}
+
+fn maskedEmailAlloc(allocator: std.mem.Allocator, email: []const u8) ![]u8 {
+    const at_index = std.mem.indexOfScalar(u8, email, '@') orelse return maskedLocalPartAlloc(allocator, email, "");
+    return maskedLocalPartAlloc(allocator, email[0..at_index], email[at_index..]);
+}
+
+fn maskedLocalPartAlloc(allocator: std.mem.Allocator, local: []const u8, suffix: []const u8) ![]u8 {
+    const mask = "*****";
+    if (local.len == 0) return std.fmt.allocPrint(allocator, "{s}{s}", .{ mask, suffix });
+    if (local.len <= 2) return std.fmt.allocPrint(allocator, "{s}{s}", .{ mask, suffix });
+    if (local.len == 3) return std.fmt.allocPrint(allocator, "{s}{s}{s}{s}", .{ local[0..1], mask, local[2..3], suffix });
+    return std.fmt.allocPrint(allocator, "{s}{s}{s}{s}", .{ local[0..2], mask, local[local.len - 2 ..], suffix });
 }
 
 fn normalizedAccountName(rec: *const registry.AccountRecord) ?[]const u8 {

@@ -194,7 +194,7 @@ test "writeAccountsTable uses cyan headers green active rows and default normal 
 
     const output = writer.buffered();
     try std.testing.expect(std.mem.indexOf(u8, output, ansi.cyan ++ "     ACCOUNT") != null);
-    try std.testing.expect(std.mem.indexOf(u8, output, ansi.green ++ "* 01 active@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, ansi.green ++ "* 01 ac*****ve@example.com") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "\x1b[2m  02 normal@example.com") == null);
 }
 
@@ -232,6 +232,6 @@ test "writeAccountsTable shows API_KEY in the plan column for API key auth" {
     try writeAccountsTable(&writer, &reg, false);
 
     const output = writer.buffered();
-    try std.testing.expect(std.mem.indexOf(u8, output, "user@example.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "us*****er@example.com") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "API_KEY") != null);
 }
