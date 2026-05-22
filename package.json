@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wen2go/codex-auth-ext"
+    "url": "git+https://github.com/wen2go/codex-auth-ext.git"
   },
   "homepage": "https://github.com/wen2go/codex-auth-ext",
   "bugs": {
